@@ -4,6 +4,9 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
+import java.util.Collections;
+import java.util.Comparator;
+import javax.swing.JOptionPane;
 
 public class Movie extends MovieCreator {
     private String movieTitle;
@@ -19,7 +22,7 @@ public class Movie extends MovieCreator {
         String composerName = movieListFileScanner.nextLine();
         setComposerName(composerName); //Inherited method
     }
-
+    //Default constructor
     public Movie(){
 
     }
@@ -41,7 +44,7 @@ public class Movie extends MovieCreator {
     public void readToken(String tempString, ArrayList<String> movieList){
         StringTokenizer strTokenizer = new StringTokenizer(tempString, ",");
         while(strTokenizer.hasMoreTokens()){
-            movieList.add(strTokenizer.nextToken());
+            movieList.add(strTokenizer.nextToken().trim());
         }
     }
 
@@ -82,7 +85,7 @@ public class Movie extends MovieCreator {
         }
         return objectMovieList;
     }
-    //Take the array list of movies and filter it further.
+    //this method takes the array list of movies and filter it by genre by comparing the getter attribute to the specified genre.
     public ArrayList<Movie> filterMoviesByGenre(ArrayList<Movie> objectMovieList, String targetGenre){
         ArrayList<Movie> filteredList = new ArrayList<>();
         for (Movie movie : objectMovieList){
@@ -91,6 +94,39 @@ public class Movie extends MovieCreator {
             }
         }
         return filteredList;
+    }
+
+    //Method sorts filtered list by year in ascending order using collections class and comparators
+    public void sortByYear(ArrayList<Movie> filteredMovieList) {
+        Collections.sort(filteredMovieList, Comparator.comparing(Movie::getYearReleased));
+    }
+
+    //This method displays the data of each genre in the filtered arrayList. Creates the filter, sort then display attributes
+    public void displayFilteredData(String[] genreArray, ArrayList<Movie> objectMovieList, Movie movie) {
+        //For each genre object in the list of stored genres,
+        //Filter and sort the list, then append data to a string builder object
+        for (int j = 0; j < genreArray.length; j++) {
+            ArrayList<Movie> filteredMovies = movie.filterMoviesByGenre(objectMovieList, genreArray[j]);
+            movie.sortByYear(filteredMovies);
+            StringBuilder messageLog = new StringBuilder();
+                //If iteration through filtered movie list isn't complete, repeat.
+            if(!filteredMovies.isEmpty()) {
+                //Grab the elements at the spot of filtered movies
+                messageLog.append("Director:  ").append(filteredMovies.get(0).getDirectorName()).append("\n");
+                messageLog.append("Composer:  ").append(filteredMovies.get(0).getComposerName()).append("\n\n");
+                messageLog.append("Genre:  ").append(filteredMovies.get(0).getGenre()).append("\n\n");
+                messageLog.append("Movie Title  Year Released  Rating\n");
+            }
+                //For each current movie in the filtered list
+            for (Movie currentMovie : filteredMovies) {
+                    messageLog.append(String.format("%-15s %-15s %-10s\n",
+                            currentMovie.getMovieTitle(),
+                            currentMovie.getYearReleased(),
+                            currentMovie.getRating()));
+            }
+           JOptionPane.showMessageDialog(null, messageLog.toString(), "Movie Data", JOptionPane.INFORMATION_MESSAGE);
+        }
+        //Display information in jay option pane
     }
     public void setMovieTitle(String movieTitle){this.movieTitle = movieTitle;}
     public void setYearReleased(String yearReleased){this.yearReleased = yearReleased;}
@@ -108,10 +144,10 @@ public class Movie extends MovieCreator {
         return "Movie{" +
                 "directorName='" + getDirectorName() + '\'' +
                 ", composerName='" + getComposerName() + '\'' +
-                ", movieTitle='" + movieTitle + '\'' +
-                ", yearReleased='" + yearReleased + '\'' +
-                ", Genre='" + Genre + '\'' +
-                ", Rating='" + Rating + '\'' +
+                ", movieTitle='" + getMovieTitle() + '\'' +
+                ", yearReleased='" + getYearReleased() + '\'' +
+                ", Genre='" + getGenre() + '\'' +
+                ", Rating='" + getRating() + '\'' +
                 '}' + "\n";
     }
 
